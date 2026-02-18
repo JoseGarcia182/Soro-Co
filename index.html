@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Soro & Co — Velada de Fin de Año 2024</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #090909; --dark: #111111; --border: #242424;
+      --gold: #c9a84c; --gold-dim: rgba(201,168,76,0.15);
+      --white: #f0ede8; --muted: #666660;
+    }
+    html, body { height: 100%; background: var(--black); color: var(--white); font-family: 'Montserrat', sans-serif; font-weight: 300; overflow-x: hidden; }
+    body::after { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E"); pointer-events: none; z-index: 999; }
+
+    .page { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; }
+
+    /* LEFT */
+    .left { position: relative; display: flex; flex-direction: column; justify-content: space-between; padding: 56px 64px; border-right: 1px solid var(--border); overflow: hidden; }
+    .left-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 30% 60%, rgba(201,168,76,0.055) 0%, transparent 65%); z-index: 0; }
+    .geo-ring { position: absolute; width: 480px; height: 480px; border: 1px solid rgba(201,168,76,0.08); border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%,-50%); animation: slowSpin 40s linear infinite; }
+    .geo-ring::before { content: ''; position: absolute; inset: 40px; border: 1px solid rgba(201,168,76,0.05); border-radius: 50%; }
+    .geo-ring::after { content: ''; position: absolute; inset: 90px; border: 1px solid rgba(201,168,76,0.03); border-radius: 50%; }
+    @keyframes slowSpin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+    .left-vline { position: absolute; top: 0; bottom: 0; left: 200px; width: 1px; background: linear-gradient(180deg, transparent, var(--border) 20%, var(--border) 80%, transparent); opacity: 0.5; }
+    .left-top, .left-center, .left-bottom { position: relative; z-index: 1; }
+
+    .logo { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 400; letter-spacing: 0.2em; }
+    .logo span { color: var(--gold); }
+
+    .event-tag { font-size: 0.58rem; letter-spacing: 0.45em; text-transform: uppercase; color: var(--gold); margin-bottom: 28px; opacity: 0; animation: fadeUp 0.7s ease 0.4s forwards; }
+    .event-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(3.2rem, 5.5vw, 5.2rem); font-weight: 300; line-height: 1.0; margin-bottom: 36px; opacity: 0; animation: fadeUp 0.9s ease 0.55s forwards; }
+    .event-title em { font-style: italic; color: var(--gold); display: block; }
+
+    .event-details { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border); opacity: 0; animation: fadeUp 0.8s ease 0.75s forwards; }
+    .detail-row { display: flex; align-items: center; gap: 20px; padding: 16px 20px; border-bottom: 1px solid var(--border); transition: background 0.3s; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-row:hover { background: rgba(201,168,76,0.04); }
+    .detail-icon { width: 16px; height: 16px; flex-shrink: 0; }
+    .detail-icon svg { width: 100%; height: 100%; stroke: var(--gold); fill: none; stroke-width: 1.5; }
+    .detail-label { font-size: 0.58rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--muted); width: 72px; flex-shrink: 0; }
+    .detail-val { font-size: 0.78rem; letter-spacing: 0.05em; }
+
+    .dress-badge { display: inline-flex; align-items: center; gap: 10px; margin-top: 28px; border: 1px solid var(--border); padding: 12px 20px; opacity: 0; animation: fadeUp 0.8s ease 0.9s forwards; }
+    .dress-dot { width: 5px; height: 5px; background: var(--gold); flex-shrink: 0; }
+    .dress-text { font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--muted); }
+    .dress-text strong { color: var(--white); font-weight: 400; }
+    .left-footer { font-size: 0.58rem; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; opacity: 0; animation: fadeIn 1s ease 1.1s forwards; }
+
+    /* RIGHT */
+    .right { display: flex; flex-direction: column; justify-content: center; padding: 56px 64px; position: relative; }
+    .right-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 60% 50% at 70% 30%, rgba(201,168,76,0.03) 0%, transparent 60%); }
+    .right-inner { position: relative; z-index: 1; max-width: 420px; }
+
+    .rsvp-heading { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 3vw, 2.6rem); font-weight: 300; margin-bottom: 8px; opacity: 0; animation: fadeUp 0.8s ease 0.6s forwards; }
+    .rsvp-sub { font-size: 0.68rem; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 48px; opacity: 0; animation: fadeUp 0.8s ease 0.75s forwards; }
+
+    .rsvp-options { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 28px; opacity: 0; animation: fadeUp 0.8s ease 0.85s forwards; }
+    .rsvp-opt { background: var(--black); padding: 20px; cursor: pointer; text-align: center; transition: background 0.3s; }
+    .rsvp-opt-label { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
+    .rsvp-opt-icon { width: 28px; height: 28px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; transition: border-color 0.3s, background 0.3s; }
+    .rsvp-opt-icon svg { width: 14px; height: 14px; stroke: var(--muted); fill: none; stroke-width: 1.5; transition: stroke 0.3s; }
+    .rsvp-opt-text { font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--muted); transition: color 0.3s; }
+    .rsvp-opt.selected { background: var(--dark); }
+    .rsvp-opt.selected .rsvp-opt-icon { border-color: var(--gold); background: var(--gold-dim); }
+    .rsvp-opt.selected .rsvp-opt-icon svg { stroke: var(--gold); }
+    .rsvp-opt.selected .rsvp-opt-text { color: var(--gold); }
+
+    .form-field { border: 1px solid var(--border); position: relative; margin-bottom: 28px; transition: border-color 0.3s; opacity: 0; animation: fadeUp 0.8s ease 0.95s forwards; }
+    .form-field:focus-within { border-color: rgba(201,168,76,0.4); }
+    .form-field label { position: absolute; top: 14px; left: 20px; font-size: 0.58rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--muted); pointer-events: none; transition: color 0.3s; }
+    .form-field:focus-within label { color: var(--gold); }
+    .form-field input { width: 100%; padding: 34px 20px 14px; background: transparent; border: none; outline: none; color: var(--white); font-family: 'Montserrat', sans-serif; font-size: 0.88rem; font-weight: 300; letter-spacing: 0.05em; }
+
+    .rsvp-btn { width: 100%; background: var(--gold); color: var(--black); border: none; padding: 18px 32px; font-family: 'Montserrat', sans-serif; font-size: 0.62rem; font-weight: 600; letter-spacing: 0.35em; text-transform: uppercase; cursor: pointer; transition: background 0.3s, opacity 0.3s; opacity: 0; animation: fadeUp 0.8s ease 1.05s forwards; }
+    .rsvp-btn:hover:not(:disabled) { background: #d9b96a; }
+    .rsvp-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .form-note { margin-top: 20px; font-size: 0.58rem; letter-spacing: 0.15em; color: var(--muted); text-align: center; opacity: 0; animation: fadeIn 0.8s ease 1.15s forwards; }
+
+    /* Error */
+    .field-error { border-color: rgba(200, 80, 80, 0.5) !important; }
+    .error-msg { font-size: 0.58rem; color: #c06060; letter-spacing: 0.15em; margin-top: -20px; margin-bottom: 20px; padding-left: 4px; display: none; }
+
+    /* Loading spinner */
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(0,0,0,0.3); border-top-color: var(--black); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 8px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* States */
+    .success-state, .decline-state { display: none; flex-direction: column; align-items: flex-start; gap: 24px; }
+    .state-icon { width: 52px; height: 52px; border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; }
+    .state-icon svg { width: 22px; height: 22px; stroke: var(--gold); fill: none; stroke-width: 1.5; }
+    .success-title { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 300; line-height: 1.15; }
+    .success-title em { font-style: italic; color: var(--gold); }
+    .success-text { font-size: 0.72rem; line-height: 2; color: var(--muted); letter-spacing: 0.04em; }
+    .success-name { border: 1px solid var(--border); padding: 16px 24px; font-size: 0.62rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); }
+    .decline-title { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 300; line-height: 1.15; color: var(--muted); }
+    .decline-title em { font-style: italic; }
+    .decline-text { font-size: 0.72rem; line-height: 2; color: var(--muted); letter-spacing: 0.04em; }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    @media (max-width: 768px) {
+      .page { grid-template-columns: 1fr; }
+      .left { border-right: none; border-bottom: 1px solid var(--border); padding: 40px 28px; }
+      .left-vline, .geo-ring { display: none; }
+      .right { padding: 40px 28px; }
+      .right-inner { max-width: 100%; }
+      .event-title { font-size: 3rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- LEFT -->
+  <div class="left">
+    <div class="left-bg"></div>
+    <div class="geo-ring"></div>
+    <div class="left-vline"></div>
+    <div class="left-top">
+      <div class="logo">Soro <span>&</span> Co</div>
+    </div>
+    <div class="left-center">
+      <p class="event-tag">Velada Anual · 2024</p>
+      <h1 class="event-title">Cierre<br>de <em>Año</em></h1>
+      <div class="event-details">
+        <div class="detail-row">
+          <div class="detail-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <span class="detail-label">Fecha</span>
+          <span class="detail-val">Viernes 20 de Diciembre, 2024</span>
+        </div>
+        <div class="detail-row">
+          <div class="detail-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <span class="detail-label">Hora</span>
+          <span class="detail-val">20:30 hs — Recepción desde las 20:00</span>
+        </div>
+        <div class="detail-row">
+          <div class="detail-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+          <span class="detail-label">Lugar</span>
+          <span class="detail-val">Hotel Alvear Palace, Buenos Aires</span>
+        </div>
+      </div>
+      <div class="dress-badge">
+        <div class="dress-dot"></div>
+        <span class="dress-text">Dress code: <strong>Etiqueta Negra</strong></span>
+      </div>
+    </div>
+    <div class="left-bottom">
+      <p class="left-footer">Confirmar antes del 13 de diciembre</p>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+    <div class="right-bg"></div>
+    <div class="right-inner">
+
+      <!-- FORM -->
+      <div id="formState">
+        <h2 class="rsvp-heading">Confirmá tu asistencia</h2>
+        <p class="rsvp-sub">Completá el formulario para reservar tu lugar.</p>
+
+        <div class="rsvp-options">
+          <div class="rsvp-opt selected" id="optYes" onclick="selectOpt('yes')">
+            <div class="rsvp-opt-label">
+              <div class="rsvp-opt-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <span class="rsvp-opt-text">Asistiré</span>
+            </div>
+          </div>
+          <div class="rsvp-opt" id="optNo" onclick="selectOpt('no')">
+            <div class="rsvp-opt-label">
+              <div class="rsvp-opt-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+              <span class="rsvp-opt-text">No podré asistir</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-field" id="nombreField">
+          <label for="nombre">Nombre completo</label>
+          <input type="text" id="nombre" autocomplete="off" />
+        </div>
+        <div class="error-msg" id="errorMsg">Por favor ingresá tu nombre completo.</div>
+
+        <button class="rsvp-btn" id="submitBtn" onclick="handleSubmit()">
+          Confirmar asistencia
+        </button>
+        <p class="form-note">Su información es confidencial y solo se utilizará para la organización del evento.</p>
+      </div>
+
+      <!-- SUCCESS -->
+      <div class="success-state" id="successState">
+        <div class="state-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <h2 class="success-title">Nos vemos<br>el <em>20 de Dic.</em></h2>
+        <p class="success-text">Su lugar ha sido reservado. Le esperamos a partir de las 20:00 hs en el Alvear Palace.</p>
+        <div class="success-name" id="successName"></div>
+      </div>
+
+      <!-- DECLINE -->
+      <div class="decline-state" id="declineState">
+        <div class="state-icon" style="border-color:var(--border)"><svg viewBox="0 0 24 24" style="stroke:var(--muted)"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+        <h2 class="decline-title">Lamentamos<br><em>no contar</em> con usted</h2>
+        <p class="decline-text">Hemos registrado su respuesta. Esperamos compartir el próximo evento juntos.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // ⚠️ REEMPLAZÁ ESTA URL con la de tu Google Apps Script desplegado
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwPKOQl99-5u5GFso5Ata7fx8yu0RhZ1yP0iH4ZjRS2bO0YpvAWAghmyif4mguNekMepA/exec';
+
+  let currentOpt = 'yes';
+
+  function selectOpt(val) {
+    currentOpt = val;
+    document.getElementById('optYes').classList.toggle('selected', val === 'yes');
+    document.getElementById('optNo').classList.toggle('selected', val === 'no');
+    document.getElementById('submitBtn').textContent = val === 'yes' ? 'Confirmar asistencia' : 'Enviar respuesta';
+  }
+
+  async function handleSubmit() {
+    const nombre = document.getElementById('nombre').value.trim();
+    const field  = document.getElementById('nombreField');
+    const errMsg = document.getElementById('errorMsg');
+    const btn    = document.getElementById('submitBtn');
+
+    // Validación
+    if (!nombre) {
+      field.classList.add('field-error');
+      errMsg.style.display = 'block';
+      document.getElementById('nombre').focus();
+      return;
+    }
+    field.classList.remove('field-error');
+    errMsg.style.display = 'none';
+
+    // Loading state
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Enviando...';
+
+    try {
+      await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre,
+          confirmacion: currentOpt === 'yes' ? 'Confirma' : 'No asiste',
+          fecha: new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })
+        })
+      });
+    } catch (e) {
+      // no-cors no lanza error aunque llegue, igual mostramos éxito
+      console.warn('fetch warning:', e);
+    }
+
+    // Mostrar estado final
+    document.getElementById('formState').style.display = 'none';
+
+    if (currentOpt === 'yes') {
+      document.getElementById('successName').textContent = nombre.toUpperCase();
+      showState('successState');
+    } else {
+      showState('declineState');
+    }
+  }
+
+  function showState(id) {
+    const el = document.getElementById(id);
+    el.style.display = 'flex';
+    el.style.opacity = 0;
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
+    requestAnimationFrame(() => { el.style.opacity = 1; el.style.transform = 'translateY(0)'; });
+  }
+
+  document.getElementById('nombre').addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleSubmit();
+  });
+</script>
+</body>
+</html>

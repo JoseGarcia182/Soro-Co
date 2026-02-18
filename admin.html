@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Soro & Co — Panel Administrativo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <!-- SheetJS para exportar Excel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #090909; --dark: #111111; --card: #161616;
+      --border: #242424; --border2: #1e1e1e;
+      --gold: #c9a84c; --gold-dim: rgba(201,168,76,0.12);
+      --white: #f0ede8; --muted: #666660;
+      --green: #4caf7d; --red: #c06060;
+    }
+    html, body { height: 100%; background: var(--black); color: var(--white); font-family: 'Montserrat', sans-serif; font-weight: 300; }
+    body::after { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events: none; z-index: 999; }
+
+    /* ── LOGIN ── */
+    #loginScreen {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(201,168,76,0.05) 0%, transparent 65%);
+    }
+    .login-box { width: 100%; max-width: 380px; padding: 0 24px; }
+    .login-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; letter-spacing: 0.2em; text-align: center; margin-bottom: 8px; }
+    .login-logo span { color: var(--gold); }
+    .login-sub { font-size: 0.6rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--muted); text-align: center; margin-bottom: 48px; }
+    .login-title { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; margin-bottom: 32px; }
+    .login-field { border: 1px solid var(--border); position: relative; margin-bottom: 16px; transition: border-color 0.3s; }
+    .login-field:focus-within { border-color: rgba(201,168,76,0.4); }
+    .login-field label { position: absolute; top: 12px; left: 18px; font-size: 0.55rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--muted); pointer-events: none; transition: color 0.3s; }
+    .login-field:focus-within label { color: var(--gold); }
+    .login-field input { width: 100%; padding: 30px 18px 12px; background: transparent; border: none; outline: none; color: var(--white); font-family: 'Montserrat', sans-serif; font-size: 0.85rem; font-weight: 300; letter-spacing: 0.1em; }
+    .login-btn { width: 100%; background: var(--gold); color: var(--black); border: none; padding: 16px; font-family: 'Montserrat', sans-serif; font-size: 0.62rem; font-weight: 600; letter-spacing: 0.35em; text-transform: uppercase; cursor: pointer; transition: background 0.3s; margin-top: 8px; }
+    .login-btn:hover { background: #d9b96a; }
+    .login-error { font-size: 0.6rem; color: var(--red); letter-spacing: 0.15em; margin-top: 12px; text-align: center; display: none; }
+
+    /* ── ADMIN PANEL ── */
+    #adminPanel { display: none; min-height: 100vh; flex-direction: column; }
+
+    /* Header */
+    .admin-header {
+      border-bottom: 1px solid var(--border);
+      padding: 20px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; background: rgba(9,9,9,0.95);
+      backdrop-filter: blur(12px); z-index: 100;
+    }
+    .admin-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; letter-spacing: 0.2em; }
+    .admin-logo span { color: var(--gold); }
+    .admin-logo-sub { font-size: 0.55rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--muted); margin-top: 2px; }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .btn-refresh { display: flex; align-items: center; gap: 8px; background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 9px 18px; font-family: 'Montserrat', sans-serif; font-size: 0.58rem; letter-spacing: 0.25em; text-transform: uppercase; cursor: pointer; transition: border-color 0.3s, color 0.3s; }
+    .btn-refresh:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-refresh svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .btn-logout { background: transparent; border: none; color: var(--muted); font-family: 'Montserrat', sans-serif; font-size: 0.58rem; letter-spacing: 0.25em; text-transform: uppercase; cursor: pointer; transition: color 0.3s; }
+    .btn-logout:hover { color: var(--white); }
+
+    /* Body */
+    .admin-body { flex: 1; padding: 40px; }
+
+    /* Stats */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 40px; }
+    .stat-box { background: var(--dark); padding: 28px 32px; transition: background 0.3s; }
+    .stat-box:hover { background: var(--card); }
+    .stat-box-label { font-size: 0.55rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+    .stat-box-num { font-family: 'Cormorant Garamond', serif; font-size: 2.8rem; font-weight: 300; line-height: 1; }
+    .stat-box-num.gold { color: var(--gold); }
+    .stat-box-num.green { color: var(--green); }
+    .stat-box-num.red { color: var(--red); }
+
+    /* Toolbar */
+    .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .toolbar-left { display: flex; align-items: center; gap: 12px; }
+    .filter-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 8px 16px; font-family: 'Montserrat', sans-serif; font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; transition: all 0.3s; }
+    .filter-btn.active, .filter-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .search-wrap { position: relative; }
+    .search-wrap input { background: var(--dark); border: 1px solid var(--border); color: var(--white); padding: 9px 16px 9px 36px; font-family: 'Montserrat', sans-serif; font-size: 0.7rem; outline: none; width: 220px; transition: border-color 0.3s; }
+    .search-wrap input:focus { border-color: rgba(201,168,76,0.3); }
+    .search-wrap input::placeholder { color: var(--muted); }
+    .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; stroke: var(--muted); fill: none; stroke-width: 2; }
+    .btn-export { display: flex; align-items: center; gap: 8px; background: var(--gold); color: var(--black); border: none; padding: 10px 20px; font-family: 'Montserrat', sans-serif; font-size: 0.6rem; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; cursor: pointer; transition: background 0.3s; }
+    .btn-export:hover { background: #d9b96a; }
+    .btn-export svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    /* Table */
+    .table-wrap { border: 1px solid var(--border); overflow: hidden; }
+    .table-head { display: grid; grid-template-columns: 48px 1fr 160px 200px 100px; background: var(--card); border-bottom: 1px solid var(--border); }
+    .th { padding: 14px 20px; font-size: 0.55rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--muted); }
+    .table-body { }
+    .table-row { display: grid; grid-template-columns: 48px 1fr 160px 200px 100px; border-bottom: 1px solid var(--border2); transition: background 0.2s; }
+    .table-row:last-child { border-bottom: none; }
+    .table-row:hover { background: rgba(255,255,255,0.02); }
+    .td { padding: 16px 20px; font-size: 0.72rem; letter-spacing: 0.03em; display: flex; align-items: center; color: var(--white); }
+    .td.num { color: var(--muted); font-size: 0.62rem; }
+    .td.name { font-weight: 400; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 500; }
+    .badge.confirma { background: rgba(76,175,125,0.12); color: var(--green); }
+    .badge.noasiste { background: rgba(192,96,96,0.12); color: var(--red); }
+    .badge-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+    .badge.confirma .badge-dot { background: var(--green); }
+    .badge.noasiste .badge-dot { background: var(--red); }
+    .td.fecha { font-size: 0.62rem; color: var(--muted); }
+
+    /* Empty / Loading */
+    .table-empty { padding: 60px 20px; text-align: center; color: var(--muted); font-size: 0.7rem; letter-spacing: 0.15em; }
+    .loading-row { padding: 40px; text-align: center; color: var(--muted); font-size: 0.65rem; letter-spacing: 0.2em; }
+
+    /* Spinner */
+    .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 8px; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Last updated */
+    .last-updated { font-size: 0.55rem; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; margin-top: 16px; text-align: right; }
+
+    @media (max-width: 900px) {
+      .admin-body { padding: 20px; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .table-head { grid-template-columns: 40px 1fr 120px; }
+      .table-row { grid-template-columns: 40px 1fr 120px; }
+      .th:nth-child(4), .td:nth-child(4),
+      .th:nth-child(5), .td:nth-child(5) { display: none; }
+      .toolbar { flex-direction: column; gap: 12px; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">Soro <span>&</span> Co</div>
+    <div class="login-sub">Panel Administrativo</div>
+    <h2 class="login-title">Acceso restringido</h2>
+    <div class="login-field">
+      <label>Contraseña</label>
+      <input type="password" id="passInput" placeholder="" autocomplete="current-password" />
+    </div>
+    <button class="login-btn" onclick="doLogin()">Ingresar</button>
+    <div class="login-error" id="loginError">Contraseña incorrecta.</div>
+  </div>
+</div>
+
+<!-- ── ADMIN PANEL ── -->
+<div id="adminPanel">
+
+  <div class="admin-header">
+    <div>
+      <div class="admin-logo">Soro <span>&</span> Co</div>
+      <div class="admin-logo-sub">Velada de Fin de Año 2024</div>
+    </div>
+    <div class="header-right">
+      <button class="btn-refresh" onclick="loadGuests()">
+        <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Actualizar
+      </button>
+      <button class="btn-logout" onclick="doLogout()">Cerrar sesión</button>
+    </div>
+  </div>
+
+  <div class="admin-body">
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-box-label">Total de respuestas</div>
+        <div class="stat-box-num gold" id="statTotal">—</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-label">Confirman asistencia</div>
+        <div class="stat-box-num green" id="statConfirma">—</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-label">No asisten</div>
+        <div class="stat-box-num red" id="statNoAsiste">—</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-label">Tasa de confirmación</div>
+        <div class="stat-box-num gold" id="statTasa">—</div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <button class="filter-btn active" id="filterTodos" onclick="setFilter('todos')">Todos</button>
+        <button class="filter-btn" id="filterConfirma" onclick="setFilter('confirma')">Confirman</button>
+        <button class="filter-btn" id="filterNoAsiste" onclick="setFilter('noasiste')">No asisten</button>
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" placeholder="Buscar invitado..." oninput="renderTable()" />
+        </div>
+      </div>
+      <button class="btn-export" onclick="exportExcel()">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar Excel
+      </button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <div class="table-head">
+        <div class="th">#</div>
+        <div class="th">Nombre</div>
+        <div class="th">Confirmación</div>
+        <div class="th">Fecha y hora</div>
+        <div class="th"></div>
+      </div>
+      <div class="table-body" id="tableBody">
+        <div class="loading-row"><span class="spinner"></span>Cargando datos...</div>
+      </div>
+    </div>
+    <div class="last-updated" id="lastUpdated"></div>
+
+  </div>
+</div>
+
+<script>
+  // ─── CONFIGURACIÓN ───────────────────────────────────────────
+  // ⚠️ REEMPLAZÁ con tu URL de Apps Script y tu contraseña
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwPKOQl99-5u5GFso5Ata7fx8yu0RhZ1yP0iH4ZjRS2bO0YpvAWAghmyif4mguNekMepA/exec';
+  const ADMIN_PASSWORD  = '12345'; // Ej: 'soroAdmin2024'
+  // ────────────────────────────────────────────────────────────
+
+  let allGuests = [];
+  let currentFilter = 'todos';
+
+  // ── LOGIN ──
+  function doLogin() {
+    const val = document.getElementById('passInput').value;
+    if (val === ADMIN_PASSWORD) {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('adminPanel').style.display = 'flex';
+      loadGuests();
+    } else {
+      document.getElementById('loginError').style.display = 'block';
+      document.getElementById('passInput').value = '';
+      document.getElementById('passInput').focus();
+    }
+  }
+  document.getElementById('passInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+
+  function doLogout() {
+    document.getElementById('adminPanel').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('passInput').value = '';
+    allGuests = [];
+  }
+
+  // ── CARGAR DATOS ──
+  async function loadGuests() {
+    document.getElementById('tableBody').innerHTML = '<div class="loading-row"><span class="spinner"></span>Cargando datos...</div>';
+    try {
+      const res  = await fetch(APPS_SCRIPT_URL + '?action=get');
+      const data = await res.json();
+      allGuests  = data.guests || [];
+      updateStats();
+      renderTable();
+      document.getElementById('lastUpdated').textContent =
+        'Última actualización: ' + new Date().toLocaleString('es-AR');
+    } catch (e) {
+      document.getElementById('tableBody').innerHTML =
+        '<div class="table-empty">Error al cargar los datos. Verificá la URL del Apps Script.</div>';
+    }
+  }
+
+  // ── STATS ──
+  function updateStats() {
+    const total    = allGuests.length;
+    const confirma = allGuests.filter(g => g.confirmacion === 'Confirma').length;
+    const noAsiste = allGuests.filter(g => g.confirmacion === 'No asiste').length;
+    const tasa     = total ? Math.round((confirma / total) * 100) : 0;
+    document.getElementById('statTotal').textContent    = total;
+    document.getElementById('statConfirma').textContent = confirma;
+    document.getElementById('statNoAsiste').textContent = noAsiste;
+    document.getElementById('statTasa').textContent     = tasa + '%';
+  }
+
+  // ── FILTRO ──
+  function setFilter(f) {
+    currentFilter = f;
+    ['filterTodos','filterConfirma','filterNoAsiste'].forEach(id =>
+      document.getElementById(id).classList.remove('active')
+    );
+    const map = { todos: 'filterTodos', confirma: 'filterConfirma', noasiste: 'filterNoAsiste' };
+    document.getElementById(map[f]).classList.add('active');
+    renderTable();
+  }
+
+  // ── RENDER TABLE ──
+  function renderTable() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    let list = allGuests;
+    if (currentFilter === 'confirma')  list = list.filter(g => g.confirmacion === 'Confirma');
+    if (currentFilter === 'noasiste')  list = list.filter(g => g.confirmacion === 'No asiste');
+    if (search) list = list.filter(g => g.nombre.toLowerCase().includes(search));
+
+    if (!list.length) {
+      document.getElementById('tableBody').innerHTML =
+        '<div class="table-empty">No se encontraron invitados.</div>';
+      return;
+    }
+
+    document.getElementById('tableBody').innerHTML = list.map((g, i) => `
+      <div class="table-row">
+        <div class="td num">${i + 1}</div>
+        <div class="td name">${escHtml(g.nombre)}</div>
+        <div class="td">
+          <span class="badge ${g.confirmacion === 'Confirma' ? 'confirma' : 'noasiste'}">
+            <span class="badge-dot"></span>
+            ${escHtml(g.confirmacion)}
+          </span>
+        </div>
+        <div class="td fecha">${escHtml(g.fecha || '—')}</div>
+        <div class="td"></div>
+      </div>
+    `).join('');
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // ── EXPORTAR EXCEL ──
+  function exportExcel() {
+    if (!allGuests.length) { alert('No hay datos para exportar.'); return; }
+
+    const rows = allGuests.map((g, i) => ({
+      '#':            i + 1,
+      'Nombre':       g.nombre,
+      'Confirmación': g.confirmacion,
+      'Fecha y Hora': g.fecha || ''
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+
+    // Ancho de columnas
+    ws['!cols'] = [{ wch: 5 }, { wch: 35 }, { wch: 18 }, { wch: 28 }];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'RSVP Soro & Co');
+
+    const fecha = new Date().toLocaleDateString('es-AR').replace(/\//g,'-');
+    XLSX.writeFile(wb, `RSVP_SoroCo_${fecha}.xlsx`);
+  }
+</script>
+</body>
+</html>
